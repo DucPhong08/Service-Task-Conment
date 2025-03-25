@@ -1,0 +1,22 @@
+# Loại bỏ thư mục môi trường ảo
+venv/
+.env
+
+# Loại bỏ các tệp biên dịch Python
+*.pyc
+*.pyo
+__pycache__/
+
+# Loại bỏ các tệp log và dữ liệu tạm thời
+*.log
+*.sqlite3
+instance/
+
+# Loại bỏ các tệp cấu hình của IDE
+.vscode/
+.idea/
+*.iml
+.DS_Store
+
+# Loại bỏ tệp database nếu có
+db.sqlite3

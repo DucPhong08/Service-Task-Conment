@@ -1,0 +1,18 @@
+cái này sẽ tự động tạo bảng trong progresql , nhược : cứng , mở rộng không ok lắm 
+sửa vào createTable sửa , sửa .env DATABASE : new_db  => nhanh , gọn , lẹ , đỡ phải vào thêm cột db 
+
+
+endpoint : 
+http://localhost:5001/api
+
+task : 
+/tasks : GET , POST (Chưa gán middleware)
+/tasks/:id : PUT ,DELETE (chưa gán ---------)
+
+subtasks :
+/subtasks : GET ,POST
+/subtasks/:id : PUT ,DELETE
+
+assignment : 
+/ass/tasks(subtasks)/:id/assignments : GET , POST (tạo thì có theo array)
+/ass/tasks/assignments/:assignmentId : DELETE 
