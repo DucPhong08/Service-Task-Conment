@@ -1,9 +1,13 @@
 import express from "express";
-import { 
-  assignTask, getTaskAssignments, 
-  assignSubtask, getSubtaskAssignments,
-//   updateTaskAssignment, updateSubtaskAssignment,
-  deleteTaskAssignment, deleteSubtaskAssignment 
+import {
+  assignTask,
+  getTaskAssignments,
+  //   updateTaskAssignment, updateSubtaskAssignment,
+  deleteTaskAssignment,
+  removeMemberFromTask,
+  assignTaskMembersToSubtask,
+  getSubtaskAssignments,
+  removeMemberFromSubtask,
 } from "../controllers/assignmentController.js";
 
 const router = express.Router();
@@ -13,11 +17,17 @@ router.post("/tasks/:taskId/assignments", assignTask);
 router.get("/tasks/:taskId/assignments", getTaskAssignments);
 // router.put("/tasks/assignments/:assignmentId", updateTaskAssignment);
 router.delete("/tasks/assignments/:assignmentId", deleteTaskAssignment);
+router.delete("/tasks/:taskId/members/:memberId", removeMemberFromTask);
 
 // Routes cho Subtask Assignment
-router.post("/subtasks/:subtaskId/assignments", assignSubtask);
+router.post(
+  "/subtasks/:subtaskId/assignments/:taskId",
+  assignTaskMembersToSubtask
+);
 router.get("/subtasks/:subtaskId/assignments", getSubtaskAssignments);
-// router.put("/subtasks/assignments/:assignmentId", updateSubtaskAssignment);
-router.delete("/subtasks/assignments/:assignmentId", deleteSubtaskAssignment);
+router.delete(
+  "/subtasks/:subtaskId/assignments/:memberId",
+  removeMemberFromSubtask
+);
 
 export default router;

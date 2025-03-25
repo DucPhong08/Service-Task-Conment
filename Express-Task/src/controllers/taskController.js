@@ -1,7 +1,10 @@
 import * as Task from "../models/taskModel.js";
+import pool from "../config/db.js";
 
 export const createTask = async (req, res) => {
-  const { name, description, member_id,author, project_section_id, date } = req.body;
+  const { name, description, member_id, project_section_id,author, date } = req.body;
+  console.log(author);
+  
 
   // Kiểm tra nếu các trường cần thiết chưa được cung cấp
   if (!name || !member_id || !project_section_id || !date) {
@@ -20,7 +23,9 @@ export const createTask = async (req, res) => {
     }
 
     // Nếu chưa tồn tại, tạo task mới
-    const task = await Task.createTask(name, description, member_id,author, project_section_id, date);
+    const task = await Task.createTask(name, description, member_id, project_section_id,author, date);
+    console.log(task);
+    
     res.status(201).json(task);
   } catch (error) {
     res.status(500).json({ error: "Lỗi khi tạo task", message: error.message });

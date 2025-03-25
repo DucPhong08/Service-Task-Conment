@@ -1,12 +1,12 @@
 import pool from "../config/db.js";
 
 // Tạo Task
-export const createTask = async (name, description, member_id,author, project_section_id,date) => {
+export const createTask = async (name, description, member_id, project_section_id,author,date) => {
     const query = `
-        INSERT INTO task (name, description, member_id,author, project_section_id,date)
-        VALUES ($1, $2, $3, $4, $5,$6) RETURNING *;
+        INSERT INTO task (name, description, member_id,project_section_id,author,date)
+        VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;
     `;
-    const values = [name, description, member_id,author, project_section_id, date];
+    const values = [name, description, member_id,project_section_id,author,  date];
     const { rows } = await pool.query(query, values);
     return rows[0];
 };

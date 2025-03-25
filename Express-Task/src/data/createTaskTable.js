@@ -22,6 +22,7 @@ const createTaskTable = async () => {
         description TEXT,
         member_id INT,
         project_section_id INT NOT NULL,
+        author VARCHAR(255) NOT NULL DEFAULT 'System', 
         date DATE, 
         FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE SET NULL, -- Khi xóa member, task vẫn giữ nguyên
         FOREIGN KEY (project_section_id) REFERENCES project_section(id) ON DELETE CASCADE -- Khi xóa project_section, task cũng bị xóa
@@ -51,7 +52,6 @@ const createTaskTable = async () => {
         id SERIAL PRIMARY KEY,
         subtask_id INT NOT NULL,
         member_id INT NOT NULL,
-        author VARCHAR(255) NOT NULL, 
         FOREIGN KEY (subtask_id) REFERENCES subtask(id) ON DELETE CASCADE, -- Khi xóa subtask, tự động xóa phân công
         FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE -- Khi xóa member, tự động xóa phân công
     );
