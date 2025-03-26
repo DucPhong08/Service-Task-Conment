@@ -5,14 +5,39 @@ sửa vào createTable sửa , sửa .env DATABASE : new_db  => nhanh , gọn , 
 endpoint : 
 http://localhost:5001/api
 
-task : 
-/tasks : GET , POST (Chưa gán middleware)
-/tasks/:id : PUT ,DELETE (chưa gán ---------)
+Task APIs
+Tạo Task: POST /api/tasks
 
-subtasks :
-/subtasks : GET ,POST
-/subtasks/:id : PUT ,DELETE
+Lấy danh sách Task: GET /api/tasks
 
-assignment : 
-/ass/tasks(subtasks)/:id/assignments : GET , POST (tạo thì có theo array)
-/ass/tasks/assignments/:assignmentId : DELETE 
+Lấy thông tin Task theo ID: GET /api/tasks/{taskId}
+
+Cập nhật Task: PUT /api/tasks/{taskId}
+
+Xóa Task: DELETE /api/tasks/{taskId}
+
+📌 Subtask APIs
+Tạo Subtask: POST /api/subtasks
+
+Lấy danh sách Subtask: GET /api/subtasks
+
+Lấy thông tin Subtask theo ID: GET /api/subtasks/{subtaskId}
+
+Cập nhật Subtask: PUT /api/subtasks/{subtaskId}
+
+Xóa Subtask: DELETE /api/subtasks/{subtaskId}
+
+📌 Assignment APIs (Phân công công việc)
+Gán thành viên vào Task
+Gán thành viên vào Task: POST /api/ass/tasks/{taskId}/assignments   body : memberIds : [1,2,...]
+
+Lấy danh sách thành viên của Task: GET /api/ass/tasks/{taskId}/assignments
+
+Xóa thành viên khỏi Task: DELETE /api/ass/tasks/assignments/{assignmentId}
+
+Gán thành viên vào Subtask
+Gán thành viên vào Subtask: POST /api/ass/subtasks/{subtaskId}/assignments
+
+Lấy danh sách thành viên của Subtask: GET /api/ass/subtasks/{subtaskId}/assignments
+
+Xóa thành viên khỏi Subtask: DELETE /api/ass/subtasks/assignments/{assignmentId}

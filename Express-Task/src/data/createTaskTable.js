@@ -20,11 +20,9 @@ const createTaskTable = async () => {
         id SERIAL PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
         description TEXT,
-        member_id INT,
         project_section_id INT NOT NULL,
         author VARCHAR(255) NOT NULL DEFAULT 'System', 
         date DATE, 
-        FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE SET NULL, -- Khi xóa member, task vẫn giữ nguyên
         FOREIGN KEY (project_section_id) REFERENCES project_section(id) ON DELETE CASCADE -- Khi xóa project_section, task cũng bị xóa
     );
 
@@ -57,7 +55,6 @@ const createTaskTable = async () => {
     );
 
     -- Chỉ mục tối ưu truy vấn
-    CREATE INDEX IF NOT EXISTS idx_task_member ON task(member_id);
     CREATE INDEX IF NOT EXISTS idx_subtask_task ON subtask(task_id);
 
   `;

@@ -2,30 +2,26 @@ import * as Task from "../models/taskModel.js";
 import pool from "../config/db.js";
 
 export const createTask = async (req, res) => {
-  const { name, description, member_id, project_section_id,author, date } = req.body;
-  console.log(author);
-  
+  const { name, description,  project_section_id,author, date } = req.body;
 
   // Kiểm tra nếu các trường cần thiết chưa được cung cấp
-  if (!name || !member_id || !project_section_id || !date) {
-    return res.status(400).json({ message: "Tất cả các trường name, member_id, project_section_id, date là bắt buộc." });
+  if (!name || !project_section_id || !date) {
+    return res.status(400).json({ message: "Tất cả các trường name, project_section_id, date là bắt buộc." });
   }
 
   try {
     // Kiểm tra xem task đã tồn tại chưa ???
     const existingTask = await pool.query(
-      "SELECT * FROM task WHERE name = $1 AND member_id = $2 AND project_section_id = $3",
-      [name, member_id, project_section_id]
+      "SELECT * FROM task WHERE name = $1  AND project_section_id = $2",
+      [name, project_section_id]
     );
 
     if (existingTask.rows.length > 0) {
-      return res.status(400).json({ message: "Task này đã tồn tại với cùng member và project section." });
+      return res.status(400).json({ message: "Task này đã tồn tại cùng project section." });
     }
 
     // Nếu chưa tồn tại, tạo task mới
-    const task = await Task.createTask(name, description, member_id, project_section_id,author, date);
-    console.log(task);
-    
+    const task = await Task.createTask(name, description, project_section_id,author, date);
     res.status(201).json(task);
   } catch (error) {
     res.status(500).json({ error: "Lỗi khi tạo task", message: error.message });
@@ -33,8 +29,9 @@ export const createTask = async (req, res) => {
 };
 
 export const getAllTasks = async (req, res) => {
+  const {  project_section_id } = req.params;
   try {
-    const tasks = await Task.getAllTasks();
+    const tasks = await Task.getAllTasks(project_section_id);
     res.json(tasks);
   } catch (error) {
     res.status(500).json({ error: "Lỗi khi lấy danh sách task" });

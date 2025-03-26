@@ -12,9 +12,10 @@ export const createSubtask = async (name, task_id, description, date) => {
 };
 
 // Lấy danh sách tất cả Subtasks
-export const getAllSubtasks = async () => {
-    const query = "SELECT * FROM subtask;";
-    const { rows } = await pool.query(query);
+export const getAllSubtasks = async (task_id) => {
+    const query = "SELECT * FROM subtask WHERE task_id=$1;";
+    const value = [task_id]
+    const { rows } = await pool.query(query,value);
     return rows;
 };
 

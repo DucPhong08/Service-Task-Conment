@@ -5,13 +5,17 @@ export const createSubtask = async (req, res) => {
   const { name, task_id, description, date } = req.body;
 
   // Kiểm tra nếu name hoặc task_id không được cung cấp
-  if (!name || !task_id) {
+  if (!name || !task_id || !date) {
     return res
       .status(400)
-      .json({ message: "Tên subtask và task_id là bắt buộc." });
+      .json({ message: "Tên subtask , date và task_id là bắt buộc." });
   }
 
   try {
+    const task = await pool.query("SELECT date FROM task WHERE id = $1", [task_id]);
+    if (task.rows.length === 0) {
+      return res.status(400).json({ message: "Task không tồn tại." });
+    }
     // Kiểm tra xem subtask đã tồn tại chưa ?????
     const existingSubtask = await pool.query(
       "SELECT * FROM subtask WHERE task_id = $1 AND name = $2",
@@ -33,13 +37,14 @@ export const createSubtask = async (req, res) => {
     );
     res.status(201).json(subtask);
   } catch (error) {
-    res.status(500).json({ error: "Lỗi khi tạo subtask" });
+    res.status(500).json({ error: "Lỗi khi tạo subtask" ,error});
   }
 };
 
 export const getAllSubtasks = async (req, res) => {
+  const {  task_id } = req.params;
   try {
-    const subtasks = await Subtask.getAllSubtasks();
+    const subtasks = await Subtask.getAllSubtasks(task_id);
     res.json(subtasks);
   } catch (error) {
     res.status(500).json({ error: "Lỗi khi lấy danh sách subtask" });

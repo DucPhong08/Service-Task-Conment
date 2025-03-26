@@ -30,7 +30,7 @@ export const assignTask = async (req, res) => {
     if (newMemberIds.length === 0) {
       return res
         .status(400)
-        .json({ message: "Tất cả các thành viên đã được gán vào task này." });
+        .json({ message: "Tất cả thành viên này đã được gán vào task này." });
     }
 
     // Chuẩn bị giá trị để INSERT nhiều bản ghi cùng lúc
@@ -105,30 +105,42 @@ export const removeMemberFromTask = async (req, res) => {
   }
 };
 
-// Gán tất cả thành viên từ Task vào Subtask
 export const assignTaskMembersToSubtask = async (req, res) => {
   try {
     const { subtaskId, taskId } = req.params;
+    const { memberIds } = req.body;
+
+    if (!Array.isArray(memberIds) || memberIds.length === 0) {
+      return res.status(400).json({ message: "Danh sách memberIds không hợp lệ." });
+    }
+
+    // Kiểm tra subtask có tồn tại không
+    const subtaskExists = await pool.query(
+      "SELECT id FROM subtask WHERE id = $1",
+      [subtaskId]
+    );
+    if (subtaskExists.rows.length === 0) {
+      return res.status(400).json({ message: "Subtask không tồn tại." });
+    }
 
     const assignments = await assignmentModel.assignTaskMembersToSubtask(
       subtaskId,
-      taskId
+      taskId,
+      memberIds
     );
-    res
-      .status(201)
-      .json({
-        message: "Gán thành viên từ Task vào Subtask thành công",
-        assignments,
-      });
+
+    res.status(201).json({
+      message: "Gán thành viên vào Subtask thành công",
+      assignedMembers: assignments,
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Lỗi khi gán thành viên vào subtask",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Lỗi khi gán thành viên vào subtask",
+      error: error.message,
+    });
   }
 };
+
 
 // Lấy danh sách thành viên được gán vào Subtask
 export const getSubtaskAssignments = async (req, res) => {
@@ -147,33 +159,39 @@ export const getSubtaskAssignments = async (req, res) => {
 };
 
 // Xóa một thành viên khỏi Subtask
-export const removeMemberFromSubtask = async (req, res) => {
+export const removeTaskMembersFromSubtask = async (req, res) => {
   try {
-    const { subtaskId, memberId } = req.params;
+    const { subtaskId } = req.params;
+    const { memberIds } = req.body;
 
-    const deletedAssignment = await assignmentModel.removeMemberFromSubtask(
-      subtaskId,
-      memberId
-    );
-    if (!deletedAssignment) {
-      return res
-        .status(404)
-        .json({ message: "Không tìm thấy phân công để xóa" });
+    if (!Array.isArray(memberIds) || memberIds.length === 0) {
+      return res.status(400).json({ message: "Danh sách memberIds không hợp lệ." });
     }
 
-    res
-      .status(200)
-      .json({
-        message: "Xóa thành viên khỏi subtask thành công",
-        deletedAssignment,
-      });
+    // Kiểm tra subtask có tồn tại không
+    const subtaskExists = await pool.query(
+      "SELECT id FROM subtask WHERE id = $1",
+      [subtaskId]
+    );
+    if (subtaskExists.rows.length === 0) {
+      return res.status(400).json({ message: "Subtask không tồn tại." });
+    }
+
+    const removedAssignments = await assignmentModel.removeMembersFromSubtask(subtaskId, memberIds);
+
+    if (removedAssignments.length === 0) {
+      return res.status(404).json({ message: "Không tìm thấy thành viên trong subtask." });
+    }
+
+    res.status(200).json({
+      message: "Xóa thành viên khỏi subtask thành công",
+      removedMembers: removedAssignments,
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Lỗi khi xóa thành viên khỏi subtask",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Lỗi khi xóa thành viên khỏi subtask",
+      error: error.message,
+    });
   }
 };
 
@@ -207,11 +225,11 @@ export const removeMemberFromSubtask = async (req, res) => {
 
 // Xóa phân công cho task
 export const deleteTaskAssignment = async (req, res, next) => {
-  const { assignmentId } = req.params;
+  const { assignmentTaskId } = req.params;
 
   try {
     // Xóa phân công cho task
-    const assignment = await assignmentModel.deleteTaskAssignment(assignmentId);
+    const assignment = await assignmentModel.deleteTaskAssignment(assignmentTaskId);
     return res
       .status(200)
       .json({ message: "Xóa phân công thành công", assignment });

@@ -18,19 +18,24 @@ export const getTaskAssignments = async (taskId) => {
   return result.rows;
 };
 
-// Thêm phân công cho subtask
-export const assignTaskMembersToSubtask = async (subtask_id, task_id) => {
+
+export const assignTaskMembersToSubtask = async (subtask_id, task_id, memberIds) => {
   const query = `
     INSERT INTO subtask_assignments (subtask_id, member_id)
-    SELECT $1, member_id FROM task_assignments WHERE task_id = $2
+    SELECT $1, member_id FROM task_assignments 
+    WHERE task_id = $2 
+      AND member_id = ANY($3) 
+      AND member_id NOT IN (
+        SELECT member_id FROM subtask_assignments WHERE subtask_id = $1
+      )
     RETURNING *;
   `;
 
-  const values = [subtask_id, task_id];
+  const values = [subtask_id, task_id, memberIds];
   const { rows } = await pool.query(query, values);
+
   return rows;
 };
-
 export const getSubtaskAssignments = async (subtask_id) => {
   const query = `
     SELECT sa.id, sa.subtask_id, sa.member_id, m.name AS member_name
@@ -43,12 +48,17 @@ export const getSubtaskAssignments = async (subtask_id) => {
 };
 
 // Xóa thành viên khỏi Subtask
-export const removeMemberFromSubtask = async (subtask_id, member_id) => {
+export const removeMembersFromSubtask = async (subtask_id, memberIds) => {
   const query = `
-    DELETE FROM subtask_assignments WHERE subtask_id = $1 AND member_id = $2 RETURNING *;
+    DELETE FROM subtask_assignments
+    WHERE subtask_id = $1 AND member_id = ANY($2)
+    RETURNING *;
   `;
-  const { rows } = await pool.query(query, [subtask_id, member_id]);
-  return rows[0];
+
+  const values = [subtask_id, memberIds];
+  const { rows } = await pool.query(query, values);
+
+  return rows;
 };
 
 // Cập nhật phân công cho task
@@ -70,19 +80,19 @@ export const updateSubtaskAssignment = async (assignmentId, memberId) => {
 };
 
 // Xóa phân công cho task
-export const deleteTaskAssignment = async (assignmentId) => {
+export const deleteTaskAssignment = async (task_id) => {
   const result = await pool.query(
-    "DELETE FROM task_assignments WHERE id = $1 RETURNING *",
-    [assignmentId]
+    "DELETE FROM task_assignments WHERE task_id = $1 RETURNING *",
+    [task_id]
   );
   return result.rows[0];
 };
 
 // Xóa phân công cho subtask
-export const deleteSubtaskAssignment = async (assignmentId) => {
+export const deleteSubtaskAssignment = async (assignmentSubtaskId) => {
   const result = await pool.query(
-    "DELETE FROM subtask_assignments WHERE id = $1 RETURNING *",
-    [assignmentId]
+    "DELETE FROM subtask_assignments WHERE subtask_id = $1 RETURNING *",
+    [assignmentSubtaskId]
   );
   return result.rows[0];
 };

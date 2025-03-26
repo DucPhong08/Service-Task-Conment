@@ -1,20 +1,21 @@
 import pool from "../config/db.js";
 
 // Tạo Task
-export const createTask = async (name, description, member_id, project_section_id,author,date) => {
+export const createTask = async (name, description,  project_section_id,author,date) => {
     const query = `
-        INSERT INTO task (name, description, member_id,project_section_id,author,date)
-        VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;
+        INSERT INTO task (name, description, project_section_id,author,date)
+        VALUES ($1, $2, $3, $4, $5) RETURNING *;
     `;
-    const values = [name, description, member_id,project_section_id,author,  date];
+    const values = [name, description, project_section_id,author,  date];
     const { rows } = await pool.query(query, values);
     return rows[0];
 };
 
 // Lấy danh sách tất cả Tasks
-export const getAllTasks = async () => {
-    const query = "SELECT * FROM task;";
-    const { rows } = await pool.query(query);
+export const getAllTasks = async (project_section_id) => {
+    const query = "SELECT * FROM task WHERE project_section_id = $1"
+    const value = [project_section_id]
+    const { rows } = await pool.query(query,value);
     return rows;
 };
 
@@ -26,13 +27,13 @@ export const getTaskById = async (id) => {
 };
 
 // Cập nhật Task
-export const updateTask = async (id, name, description, member_id, project_section_id,date) => {
+export const updateTask = async (id, name, description,  project_section_id,date) => {
     const query = `
         UPDATE task 
-        SET name = $1, description = $2, member_id = $3, project_section_id = $4 , date = $5
+        SET name = $1, description = $2,  project_section_id = $3 , date = $4
         WHERE id = $6 RETURNING *;
     `;
-    const values = [name, description, member_id, project_section_id , date, id];
+    const values = [name, description,  project_section_id , date, id];
     const { rows } = await pool.query(query, values);
     return rows[0];
 };
